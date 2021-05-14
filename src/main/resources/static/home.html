@@ -1,0 +1,661 @@
+<!doctype html>
+<html>
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>HaoFS</title>
+    <!-- TODO Bootstrap基本框架 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- TODO 全局样式 -->
+    <link rel="stylesheet" href="css/overrall.min.css">
+    <!-- TODO 图片查看器插件 -->
+    <link rel="stylesheet" href="css/viewer.min.css">
+    <!-- TODO 音乐播放器插件 -->
+    <link rel="stylesheet" href="css/APlayer.min.css">
+    <!-- TODO 页面图标 -->
+    <link rel="icon" type="image/x-icon" href="css/icon.png"/>
+    <!-- TODO 对旧浏览器的支持部分... -->
+
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.min.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<!-- TODO 显示主体 -->
+<div class="container">
+    <!-- TODO 页面标题栏 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="titlebox">
+					<span class="titletext">
+						<em>区块链文件共享系统</em>
+					</span> <span id="tb" class="rightbtn hidden-xs"></span>
+                <button class="btn btn-link rightbtn hidden-xs"
+                        onclick="refreshFolderView()">
+                    刷新 <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+                </button>
+            </div>
+            <hr/>
+        </div>
+    </div>
+    <!-- TODO 信息栏、操作栏与文件列表 -->
+    <div class="row">
+        <div class="col-md-12">
+            <p class="subtitle visible-xs-block">
+                <span id="tb2"></span>
+                <button class="btn btn-link" onclick="refreshFolderView()">
+                    刷新 <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+                </button>
+            </p>
+            <p class="subtitle">
+                文件同步时间：<span id="publishTime"></span>
+            </p>
+            <div id="filetable" class="panel panel-default" unselectable="on"
+                 onselectstart="return false;" style="-moz-user-select: none;">
+                <!-- TODO 文件列表头部，也就是操作栏 -->
+                <div class="panel-heading">
+                    <div class="heading">
+                        <div class="navbar-header">
+                            <span id="filetableheadera" href="javascript:void(0);"
+                                  class="navbar-text" data-toggle="modal"
+                                  data-target="#folderInfoModal_"><span id="folderIconSpan"
+                                                                        class="glyphicon glyphicon-folder-close"></span>&ensp;&ensp;<span
+                                    id="currentFolderName"></span> <span id="mdropdownicon"></span></span>
+                        </div>
+                        <div class="collapse navbar-collapse" id="filetableoptmenu">
+                            <form class="navbar-form navbar-left hidden-xs">
+                                <div class="form-group">
+                                    <input id="sreachKeyWordIn" type="text" class="form-control"
+                                           placeholder="请输入文件名..." onchange="doSearchFile()">
+                                </div>
+                                <button id="searchbtn" type="button" class="btn btn-default"
+                                        onclick="doSearchFile()">搜索
+                                </button>
+                            </form>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li id="packageDownloadBox"></li>
+                                <li id="uploadFileButtonLi">
+                                    <button class='btn btn-link navbar-btn'><span
+                                            class="pull-left glyphicon glyphicon-cloud-upload"></span> 上传文件
+                                    </button>
+                                </li>
+                                <li id="checkFileHashButtonLi">
+                                    <button class='btn btn-link navbar-btn' onclick="showCheckFileHashModel()"><span
+                                            class="pull-left glyphicon glyphicon-eye-open"></span> 校验文件
+                                    </button>
+                                </li>
+
+
+                                <script src="js/search-file-model.js"></script>
+                                <li id="searchFileButtonLi">
+                                    <button class='btn btn-link navbar-btn' onclick="showSearchFileModel()"><span
+                                            class="pull-left glyphicon glyphicon-search"></span> 检索文件
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>文件指纹</th>
+                        <th onclick="sortbyfn()">文件名<span id="sortByFN"
+                                                          aria-hidden="true" style="float: right"></span></th>
+                        <th class="hidden-xs" onclick="sortbycd()">创建日期<span
+                                id="sortByCD" aria-hidden="true" style="float: right"></span></th>
+                        <th onclick="sortbyfs()">大小<span id="sortByFS"
+                                                         aria-hidden="true" style="float: right"></span></th>
+                        <th class="hidden-xs" onclick="sortbycn()">创建者<span
+                                id="sortByCN" aria-hidden="true" style="float: right"></span></th>
+                        <th onclick="showOriginFolderView()">操作<span id="sortByOR"
+                                                                     aria-hidden="true" style="float: right"></span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="foldertable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 显示主体 -->
+
+<!-- TODO 登录模态框 -->
+<div class="modal fade bs-example-modal-sm" id="loginModal"
+     tabindex="-1" role="dialog" aria-labelledby="loginModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="loginModelTitle">
+                    <span class="glyphicon glyphicon-user"></span> 账户登录
+                </h4>
+            </div>
+
+            <script type="text/javascript">
+
+
+            </script>
+
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" id="accountidbox">
+                        <label for="loginpath" id="accountidtitle"
+                               class="col-sm-4 control-label">登录文件:</label>
+                        <div class="col-sm-8">
+
+                            <input type="text" id="loginpath" class="form-control"
+                                   onclick="checkLoginFile()" onfocus="this.blur()"
+                                   placeholder="请上传登录文件……"> <input type="file"
+                                                                   id="uploadloginfile" style="display: none;"
+                                                                   onchange="getLoginFile()">
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-group hidden" id="vercodebox"></div>
+                    <div id="alertbox" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="dologinButton" class="btn btn-primary"
+                        onclick="dologin()">登录
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- TODO end 登录 -->
+
+<!-- TODO 注销提示框 -->
+<div class="modal fade bs-example-modal-sm" id="logoutModal"
+     tabindex="-1" role="dialog" aria-labelledby="logoutModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="logoutModelTitle">
+                    <span class="glyphicon glyphicon-comment"></span> 注销
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5>提示：您确认要注销么？</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="dologout()">注销</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 注销 -->
+
+<!-- TODO 上传文件框 -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1"
+     role="dialog" aria-labelledby="uploadFileMolderTitle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="uploadFileMolderTitle">
+                    <span class="glyphicon glyphicon-cloud-upload"></span> 上传文件
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5>
+                    选择文件：<span id="selectcount"></span>
+                </h5>
+                <input type="text" id="filepath" class="form-control"
+                       onclick="checkpath()" onfocus="this.blur()"
+                       placeholder="请点击选择要上传的文件……">
+                <input type="file"
+                       id="uploadfile" style="display: none;"
+                       onchange="getInputUpload()"
+                       multiple="multiple"> <br/>
+                <h5>
+                    上传进度：<span id="filecount"></span>
+                </h5>
+                <div class="progress">
+                    <div id="pros" class="progress-bar" role="progressbar"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <h5>上传状态：</h5>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="uploadstatus" class="uploadstatusbox"></div>
+                    </div>
+                </div>
+                <div id="uploadFileAlert" role="alert" class="alert alert-danger"></div>
+                <div id="selectFileUpLoadModelAlert" class="alert alert-danger"
+                     role="alert">
+                    <h4>提示：存在同名文件！</h4>
+                    <p>
+                        您要上传的文件“<span id="repeFileName"></span>”已存在于该路径下，您希望：
+                    </p>
+                    <p>
+                        <input id="selectFileUpLoadModelAsAll" type="checkbox">
+                        全部应用
+                    </p>
+                    <p>
+
+                        <button type="button" class="btn btn-default btn-sm"
+                                onclick="selectFileUpLoadModelEnd('skip')">跳过
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm"
+                                onclick="selectFileUpLoadModelEnd('both')">保留两者
+                        </button>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        onclick='abortUpload()'>取消
+                </button>
+                <button id="umbutton" type='button' class='btn btn-primary'
+                        onclick='checkUploadFile()'>开始上传
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 上传文件 -->
+
+<!-- TODO 文件校验模块 -->
+<div class="modal fade" id="checkFileHashModal" tabindex="-1"
+     role="dialog" aria-labelledby="uploadFileHashMolderTitle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="uploadFileHashMolderTitle">
+                    <span class="glyphicon glyphicon-eye-open"></span> 校验文件
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5>
+                    选择文件：<span id="selectcount-check"></span>
+                </h5>
+                <input type="text" id="filepath-check" class="form-control"
+                       onclick="checkpath_check()" onfocus="this.blur()"
+                       placeholder="请点击选择要上传的文件……"> <input type="file"
+                                                           id="uploadfile-check" style="display: none;"
+                                                           onchange="getInputUpload_check()"
+                                                           multiple="multiple"> <br/>
+                <h5>
+                    校验进度：<span id="filecount-check"></span>
+                </h5>
+                <div class="progress">
+                    <div id="pros-check" class="progress-bar" role="progressbar"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <h5>校验状态：</h5>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="uploadstatus-check" class="uploadstatusbox"></div>
+                    </div>
+                </div>
+                <div id="uploadFileAlert-check" role="alert" class="alert alert-danger"></div>
+                <div id="uploadFileSuccess-check" role="alert" class="alert alert-info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        onclick='abortUpload_check()'>取消
+                </button>
+                <button id="umbutton-check" type='button' class='btn btn-primary'
+                        onclick='checkUploadFile_check()'>开始校验
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 文件校验模块 -->
+
+<!-- TODO 文件检索模块 -->
+<div class="modal fade" id="searchFileModal" tabindex="-1"
+     role="dialog" aria-labelledby="uploadFileHashMolderTitle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">
+                    <span class="glyphicon glyphicon-search"></span> 检索文件
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5>
+                    返回数量：<span></span>
+                </h5>
+                <input type="text" id="hits-search" class="form-control"
+                       value="30">
+
+                <h5>
+                    选择文件：<span id="selectcount-search"></span>
+                </h5>
+                <input type="text" id="filepath-search" class="form-control"
+                       onclick="checkpath_search()" onfocus="this.blur()"
+                       placeholder="拖拽文件到这里……"> <input type="file"
+                                                       id="uploadfile-search" style="display: none;"
+                                                       onchange="getInputUpload_search()"
+                                                       multiple="multiple"> <br/>
+                <h5>
+                    检索进度：<span id="filecount-search"></span>
+                </h5>
+                <div class="progress">
+                    <div id="pros-search" class="progress-bar" role="progressbar"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <div id="uploadFileAlert-search" role="alert" class="alert alert-danger" hidden></div>
+                <div id="uploadFileSuccess-search" role="alert" class="alert alert-info" hidden></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        onclick='abortUpload_search()'>取消
+                </button>
+                <button id="umbutton-search" type='button' class='btn btn-primary'
+                        onclick='checkUploadFile_search()'>开始检索
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 文件校验模块 -->
+
+<!-- TODO 下载提示框 -->
+<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog"
+     aria-labelledby="downloadModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="downloadModelTitle">
+                    <span class="glyphicon glyphicon-cloud-download"></span> 下载
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5 id="downloadFileName" class="wordbreak">提示：您确认要下载文件：[]么？</h5>
+                <!--<a href="javascript:void(0);"
+                   onclick="$('#downloadURLCollapse').collapse('toggle')">下载链接+</a>-->
+                <div class="collapse" id="downloadURLCollapse">
+                    <div id="downloadHrefBox" class="well well-sm wordbreak"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <span id="downloadFileBox"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 下载 -->
+
+<!-- TODO 请求提示框 -->
+<div class="modal fade" id="requestAuthorizationModal" tabindex="-1" role="dialog"
+     aria-labelledby="downloadModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="requestAuthorizationModalTitle">
+                    <span class="glyphicon glyphicon-import"></span> 请求
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5 id="requestAuthorizationName" class="wordbreak"></h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <span id="requestAuthorizationBox"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 请求提示框 -->
+
+<!-- TODO 授权提示框 -->
+<div class="modal fade" id="responseAuthorizationModal" tabindex="-1" role="dialog"
+     aria-labelledby="downloadModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="responseAuthorizationModalTitle">
+                    <span class="glyphicon glyphicon-export"></span> 授权
+                </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>授权给</th>
+                        <th>确认</th>
+                    </tr>
+                    </thead>
+                    <tbody id="responseAuthorizationTable">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="refreshFolderView()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 授权提示框 -->
+
+<!-- TODO 删除提示框 -->
+<div class="modal fade bs-example-modal-sm" id="deleteFileModal"
+     tabindex="-1" role="dialog" aria-labelledby="deleteFileModelTitle">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="deleteFileModelTitle">
+                    <span class="glyphicon glyphicon-comment"></span> 删除文件
+                </h4>
+            </div>
+            <div class="modal-body">
+                <h5 id="deleteFileMessage" class="wordbreak"></h5>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteFileBox" type="button"
+                        class="btn btn-default" data-dismiss="modal">取消
+                </button>
+                <span id="deleteFileBox"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 删除提示框 -->
+
+<!-- TODO 加载提示框 -->
+<div id="loadingModal" class="modal fade bs-example-modal-sm"
+     tabindex="-1" role="dialog" aria-labelledby="page is loading">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content loading">加载中...</div>
+    </div>
+</div>
+<!-- TODO end 加载提示框 -->
+
+<!-- TODO 文件详情模态框 -->
+<div class="modal fade" id="folderInfoModal" tabindex="-1"
+     role="dialog" aria-labelledby="Folder Informaction Modal">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">详细信息...</h4>
+            </div>
+            <div class="modal-body">
+                <dl>
+                    <dt>文件指纹：</dt>
+                    <dd id="file_fileHash"></dd>
+                    <dt>文件名：</dt>
+                    <dd id="file_fileName"></dd>
+                    <dt>文件大小：</dt>
+                    <dd id="file_fileSize"></dd>
+                    <dt>时间戳：</dt>
+                    <dd id="file_time"></dd>
+                    <dt>文件状态：</dt>
+                    <dd id="file_state"></dd>
+                    <dt>文件特征：</dt>
+                    <dd id="file_featureHash"></dd>
+                    <dt>文件所属组织：</dt>
+                    <dd id="file_organization"></dd>
+                    <dt>文件片存储组织：</dt>
+                    <dd id="file_sliceOrganization"></dd>
+                    <dt>被授权访问组织：</dt>
+                    <dd id="file_authorizedOrganization"></dd>
+                    <dt>已保存文件组织：</dt>
+                    <dd id="file_userOrganization"></dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 文件详情模态框 -->
+
+<!-- TODO 永久资源链接显示模态框 -->
+<div class="modal fade" id="fileChainModal" tabindex="-1" role="dialog"
+     aria-labelledby="chainModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="chainModalLabel">
+                    <span class="glyphicon glyphicon-link"></span> 资源链接
+                </h4>
+            </div>
+            <div class="modal-body">
+					<textarea id="fileChainTextarea" class="form-control" rows="3"
+                              readonly></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="copyChainBtn" type="button" class="btn btn-info"
+                        onclick="copyFileChain()">复制链接
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 永久资源链接 -->
+
+<!-- TODO 公告信息栏 -->
+<div class="modal fade" id="noticeModal" tabindex="-1" role="dialog"
+     aria-labelledby="noticeModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="noticeModalLabel">公告信息</h4>
+            </div>
+            <div class="modal-body" style="overflow: scroll;"
+                 id="noticeModalBody"></div>
+            <div class="modal-footer">
+                <label class="text-muted"> <input type="checkbox"
+                                                  id="dontShowSomeNoticeAt30Day"> 30天内不再显示相同的公告信息
+                </label>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TODO end 公告信息栏 -->
+
+<!-- TODO 显示公告按钮 -->
+<div id="shownoticebox" class="shownoticebox text-center hidden">
+    <button type="button" onclick="showNotice()" class="shownoticebutton">
+        <span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span><br/>公<br/>告
+    </button>
+</div>
+<!-- TODO end 显示公告按钮 -->
+
+<!-- TODO 返回顶部按钮（隐藏式） -->
+<div id="gobacktotopbox" class="gobacktopbox text-center hidden">
+    <button type="button" onclick="goBackToTop()" class="gobacktopbutton">
+        返回顶部 <span class="glyphicon glyphicon-eject" aria-hidden="true"></span>
+    </button>
+</div>
+<!-- TODO end 返回顶部按钮 -->
+
+<!-- TODO 加载余下部分的提示 -->
+<div id="loadingremaininngbox"
+     class="loadingremaininngbox text-center bg-info hidden">
+    正在加载文件列表：<span id="loadingrate">0%</span>... <span
+        class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>
+</div>
+<!-- TODO end 加载余下部分的提示 -->
+</body>
+<!-- TODO jquery基本框架 -->
+<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+<!-- TODO bootstrap基本框架 -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- TODO 加密插件 -->
+<script type="text/javascript" src="js/jsencrypt.min.js"></script>
+<!-- TODO 图片查看器 -->
+<script type="text/javascript" src="js/viewer.min.js"></script>
+<script type="text/javascript" src="js/jquery-viewer.min.js"></script>
+<!-- TODO 音乐播放器 -->
+<script type="text/javascript" src="js/APlayer.min.js"></script>
+<!-- TODO 页面操作定义 -->
+<script type="text/javascript" src="js/home.js"></script>
+</html>

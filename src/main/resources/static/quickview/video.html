@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<base href="/">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KPlayer</title>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/overrall.min.css">
+<link rel="stylesheet" href="css/video-js.min.css">
+<link rel="icon" type="image/x-icon" href="css/player.png" />
+<!--[if lt IE 9]>
+      <script type="text/javascript" src="js/videojs-ie8.min.js"></script>
+      <script src="js/html5shiv.min.js"></script>
+      <script src="js/respond.min.js"></script>
+<![endif]-->
+<style type="text/css">
+@media only screen and (max-width: 992px) {
+	#kiftplayer {
+		width: 100%;
+		height: 400px;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	#kiftplayer {
+		height: 300px;
+	}
+}
+
+@media only screen and (max-width: 488px) {
+	#kiftplayer {
+		height: 230px;
+	}
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="titlebox">
+					<span class="titletext"><em> 网络视频播放器 <small><span
+								class="graytext">HaoFS-Player</span></small></em></span>
+					<button id="closeBtn" class="btn btn-link rightbtn"
+						onclick="reMainPage()">
+						关闭 <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+					</button>
+				</div>
+				<hr />
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<p class="subtitle">
+					视频名称：<span id="vname">加载中...</span>
+				</p>
+				<p class="subtitle">
+					<span id="vcreator">加载中...</span>/<span id="vcdate">加载中...</span>/<span
+						id="vsize">加载中...</span> MB
+				</p>
+				<br />
+				<!-- 播放窗口组件位置 -->
+				<div id="playerbox" class="col-md-12">
+					<div class="text-center">
+						<img alt="loading..." src="css/loading.gif">
+					</div>
+					<div class="text-center" id="playerMassage">
+						<h2>加载中...</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</body>
+<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/video.min.js"></script>
+<script type="text/javascript" src="quickview/kplayer.min.js"></script>
+</html>

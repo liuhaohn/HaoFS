@@ -1,0 +1,69 @@
+version: '3'
+networks:
+  file_net:
+    driver: bridge
+
+services:
+  filenode.org1.hao.com:
+    image: filenode:1.0
+    container_name: filenode.org1.hao.com
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./filesystem:/root/filesystem
+      - ./conf:/root/conf
+    extra_hosts:
+      - "orderer.example.com:${FABRIC}"
+      - "peer0.org1.example.com:${FABRIC}"
+      - "peer0.org2.example.com:${FABRIC}"
+      - "peer0.org3.example.com:${FABRIC}"
+      - "ca.org1.example.com:${FABRIC}"
+      - "ca.org2.example.com:${FABRIC}"
+      - "ca.org3.example.com:${FABRIC}"
+    #    command: "java -jar hao-blockchain-1.0.0-RELEASE.jar"
+    networks:
+      - file_net
+
+  filenode.org2.hao.com:
+    image: filenode:1.0
+    container_name: filenode.org2.hao.com
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./filesystem2:/root/filesystem
+      - ./conf2:/root/conf
+    extra_hosts:
+      - "orderer.example.com:${FABRIC}"
+      - "peer0.org1.example.com:${FABRIC}"
+      - "peer0.org2.example.com:${FABRIC}"
+      - "peer0.org3.example.com:${FABRIC}"
+      - "ca.org1.example.com:${FABRIC}"
+      - "ca.org2.example.com:${FABRIC}"
+      - "ca.org3.example.com:${FABRIC}"
+    #    command: "./wait-for-it.sh filenode.org1.hao.com:8081 -t 60 -- java -jar hao-blockchain-1.0.0-RELEASE.jar"
+    #    command: "java -jar hao-blockchain-1.0.0-RELEASE.jar"
+    command: ${CMD2}
+    networks:
+      - file_net
+
+  filenode.org3.hao.com:
+    image: filenode:1.0
+    container_name: filenode.org3.hao.com
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./filesystem3:/root/filesystem
+      - ./conf3:/root/conf
+    extra_hosts:
+      - "orderer.example.com:${FABRIC}"
+      - "peer0.org1.example.com:${FABRIC}"
+      - "peer0.org2.example.com:${FABRIC}"
+      - "peer0.org3.example.com:${FABRIC}"
+      - "ca.org1.example.com:${FABRIC}"
+      - "ca.org2.example.com:${FABRIC}"
+      - "ca.org3.example.com:${FABRIC}"
+    #    command: "./wait-for-it.sh filenode.org2.hao.com:8082 -t 120 -- java -jar hao-blockchain-1.0.0-RELEASE.jar"
+    #    command: "bash -c 'sleep 60; java -jar hao-blockchain-1.0.0-RELEASE.jar'"
+    command: ${CMD3}
+    networks:
+      - file_net
