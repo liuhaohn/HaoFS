@@ -12,9 +12,9 @@
 
 ## 项目运行
 
-- 项目测试和部署`project.sh`中的命令，其中使用`./project.sh up -img`可以将项目打包为Docker镜像，该镜像运行后既一个对等文件节点，其所属组织是 `conf/Admin@xxx` 证书文件决定的。
+- 项目测试和部署可以使用 `project.sh` 中的命令，其中使用 `./project.sh up -img` 可以将项目打包为Docker镜像，该镜像运行后即一个对等文件节点，其所属组织是 `conf/Admin@xxx` 证书文件决定的。
 
-- 项目启动前要启动fabric网络，项目中假设fabric在一个ip下，如果不在，自行修改`docker-compose.yaml`文件，并将`conf`目录配置好
+- 项目部署基于Hyperledger Fabric联盟链网络，启动前先要部署联盟链网络，然后各组织需要安装FileContract智能合约，联盟链测试环境和智能合约在FileChain中。项目中假设fabric在一个ip下，如果不在，自行修改`docker-compose.yaml`文件，并将`conf`目录配置好
 
   `conf`目录结构（以org1组织的为例）：
   
