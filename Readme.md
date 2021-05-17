@@ -1,3 +1,5 @@
+![image](https://user-images.githubusercontent.com/51185162/118489300-430a9b00-b74f-11eb-9cb2-4974414d29e0.png)
+
 - 项目用`project.sh`中的命令就可以了，项目打包用`./project.sh up -img`
   
 - 项目使用说明间 `使用说明书.doc`
